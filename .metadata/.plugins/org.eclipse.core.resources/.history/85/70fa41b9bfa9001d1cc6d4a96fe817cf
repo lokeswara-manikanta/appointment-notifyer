@@ -1,0 +1,31 @@
+package com.example.demo.controller;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.model.ScheduleNotificationRequest;
+
+@RestController
+public class NotificationController {
+
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
+
+    @PostMapping("/schedule-notification")
+    public String scheduleNotification(@RequestBody ScheduleNotificationRequest request) {
+    	
+        long delay = request.getTime().minusSeconds(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)).getSecond();
+        executorService.schedule(() -> sendNotification(request.getMessage()), delay, TimeUnit.SECONDS);
+        return "Notification scheduled";
+    }
+
+    private void sendNotification(String message) {
+        // code to send the notification
+        System.out.println("Sending notification: " + message);
+    }
+}
